@@ -27,7 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.thienphu.mytodolistapp.ui.theme.TodoListAppTheme
 import com.thienphu.mytodolistapp.ui.theme.Typography
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +38,7 @@ class MainActivity : ComponentActivity() {
             TodoListAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Anh Danh",
+                        name = "Mr Danh",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
