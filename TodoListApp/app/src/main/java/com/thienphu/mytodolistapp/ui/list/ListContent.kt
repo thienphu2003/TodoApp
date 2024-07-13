@@ -27,19 +27,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.thienphu.mytodolistapp.model.Priority
 import com.thienphu.mytodolistapp.model.ToDoTask
+import com.thienphu.mytodolistapp.utils.RequestState
 
 
 @Composable
 fun ListContent(
     modifier: Modifier,
-    tasks: List<ToDoTask>,
+    tasks: RequestState<List<ToDoTask>>,
     navigateToTaskScreen: (taskId: Int) -> Unit
 ) {
-    Log.d("ListContent", "ListContent: ${tasks.size}")
+
+  if(tasks is RequestState.Success){
+      if(tasks.data.isEmpty()){
+          EmptyContent()
+      }else{
+          DisplayTasks(modifier = modifier, tasks = tasks.data, navigateToTaskScreen = navigateToTaskScreen)
+      }
+  }
+
+}
+
+@Composable
+fun DisplayTasks(modifier: Modifier, tasks: List<ToDoTask>,
+                  navigateToTaskScreen: (taskId: Int) -> Unit){
     LazyColumn(modifier = modifier) {
-       items(count=tasks.size,itemContent = { item ->
-           TaskItem(toDoTask = tasks[item], navigateToTaskScreen = navigateToTaskScreen)
-       })
+        items(count=tasks.size,itemContent = { item ->
+            TaskItem(toDoTask = tasks[item], navigateToTaskScreen = navigateToTaskScreen)
+        })
     }
 }
 
