@@ -2,12 +2,10 @@ package com.thienphu.mytodolistapp.repositories
 
 import com.thienphu.mytodolistapp.dao.ToDoDao
 import com.thienphu.mytodolistapp.model.ToDoTask
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
 
-@ViewModelScoped
-class TodoRepository @Inject constructor(private val todoDao: ToDoDao) {
+
+class TodoRepository(private val todoDao: ToDoDao) {
 
     val getAllTasks : Flow<List<ToDoTask>> = todoDao.getAllTasks()
 
@@ -26,4 +24,6 @@ class TodoRepository @Inject constructor(private val todoDao: ToDoDao) {
     suspend fun  deleteAllTask() = todoDao.deleteAllTasks()
 
     fun searchDatabase(searchContent : String) : Flow<List<ToDoTask>> = todoDao.search(searchContent)
+
+
 }
