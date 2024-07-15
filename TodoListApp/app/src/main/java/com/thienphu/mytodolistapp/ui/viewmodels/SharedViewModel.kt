@@ -9,23 +9,28 @@ import com.thienphu.mytodolistapp.ToDoApplication
 import com.thienphu.mytodolistapp.dao.ToDoDao
 import com.thienphu.mytodolistapp.model.Priority
 import com.thienphu.mytodolistapp.model.ToDoTask
+import com.thienphu.mytodolistapp.repositories.DataStoreRepository
 import com.thienphu.mytodolistapp.repositories.TodoRepository
 import com.thienphu.mytodolistapp.utils.Action
 import com.thienphu.mytodolistapp.utils.RequestState
 import com.thienphu.mytodolistapp.utils.SearchAppBarState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 
 
 
-class SharedViewModel ( val repository: TodoRepository) : ViewModel(){
+class SharedViewModel ( private val repository: TodoRepository , private val dataStoreRepository: DataStoreRepository) : ViewModel(){
 
     val action : MutableState<Action> = mutableStateOf(Action.NO_ACTION)
+    val delete_message: MutableState<String> = mutableStateOf("")
 
 
 
@@ -130,7 +135,7 @@ class SharedViewModel ( val repository: TodoRepository) : ViewModel(){
         }
     }
 
-    fun handleDatabaseActions(action:Action) : Unit {
+    fun handleDatabaseActions(action:Action)  {
         when(action){
             Action.ADD -> {
                 addTask()
@@ -143,12 +148,13 @@ class SharedViewModel ( val repository: TodoRepository) : ViewModel(){
             }
             Action.DELETE_ALL -> {
                 deleteAllTasks()
+                delete_message.value = "All Tasks Removed"
             }
             Action.UNDO -> {
                 addTask()
             }
             else -> {
-                Log.d("Action","Nothing")
+
             }
 
         }
@@ -181,6 +187,42 @@ class SharedViewModel ( val repository: TodoRepository) : ViewModel(){
 
     fun validateFields(): Boolean {
         return title.value.isNotEmpty() && description.value.isNotEmpty()
+    }
+
+
+    val lowPriorityTask : StateFlow<List<ToDoTask>> = repository.sortByLowPriority.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        emptyList()
+    )
+    val highPriorityTask : StateFlow<List<ToDoTask>> = repository.sortByHighPriority.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        emptyList()
+    )
+    private  val _sortState = MutableStateFlow<RequestState<Priority>>(RequestState.Idle)
+    val sortState : StateFlow<RequestState<Priority>> = _sortState.asStateFlow()
+
+    fun readSortState(){
+        Log.d("SortState", "readSortState:")
+        _sortState.value = RequestState.Loading
+        try {
+            viewModelScope.launch {
+                dataStoreRepository.readSortState.map{
+                     Priority.valueOf(it)
+                }.collect{
+                    _sortState.value = RequestState.Success(it)
+                }
+            }
+        }catch (e: Exception){
+            _sortState.value = RequestState.Error(e)
+        }
+    }
+
+    fun saveSortingState(priority: Priority){
+        viewModelScope.launch(Dispatchers.IO){
+            dataStoreRepository.persistSortState(priority)
+        }
     }
 
 

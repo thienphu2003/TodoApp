@@ -55,24 +55,31 @@ fun ListScreen(
 ) {
 
 
+
     val action by sharedViewModel.action
     val allTasks by sharedViewModel.allTasks.collectAsState()
     val searchTasks by sharedViewModel.searchedTasks.collectAsState()
+    val sortState by sharedViewModel.sortState.collectAsState()
     val searchAppBarState: SearchAppBarState by sharedViewModel.searchAppBarState
     val searchTextState: String by sharedViewModel.searchTextState
+    val message by sharedViewModel.delete_message
+    val lowPriorityTasks by sharedViewModel.lowPriorityTask.collectAsState()
+    val highPriorityTasks by sharedViewModel.highPriorityTask.collectAsState()
+
+
 
     LaunchedEffect(key1 = true) {
         sharedViewModel.getAllTasks()
+        sharedViewModel.readSortState()
 
     }
-    sharedViewModel.handleDatabaseActions(action)
+     sharedViewModel.handleDatabaseActions(action)
 
 
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = action) {
-
         if (action !== Action.NO_ACTION) {
             coroutineScope.launch {
                 val label = setActionLabel(action)
@@ -88,6 +95,18 @@ fun ListScreen(
         }
     }
 
+    LaunchedEffect(key1 = message) {
+       if(message !== ""){
+           val snackBarResult = snackbarHostState.showSnackbar(
+               message,
+               actionLabel = "OK",
+               duration = SnackbarDuration.Short
+           )
+       }
+    }
+
+
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -102,7 +121,15 @@ fun ListScreen(
                 tasks = allTasks,
                 navigateToTaskScreen,
                 searchTasks,
-                searchAppBarState
+                searchAppBarState,
+                lowPriorityTasks,
+                highPriorityTasks,
+                sortState,
+                onSwipeToDelete = {
+                    action, task ->
+                    sharedViewModel.action.value = action
+                    sharedViewModel.updateTaskFields(task)
+                }
             )
         },
         floatingActionButton = {

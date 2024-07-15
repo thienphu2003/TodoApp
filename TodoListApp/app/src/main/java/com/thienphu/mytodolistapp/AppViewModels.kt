@@ -9,7 +9,7 @@ object AppViewModels {
     val Factory = viewModelFactory {
         initializer {
             val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as ToDoApplication
-            SharedViewModel(app.repository)
+            SharedViewModel(app.repository,app.dataStore)
         }
 
     }

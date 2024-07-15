@@ -26,7 +26,7 @@ val DarkGray = Color(0xFF141414)
 val lowPriorityColor = Color(0xFF00C980)
 val mediumPriorityColor = Color(0xFFFFC114)
 val highPriorityColor = Color(0xFFFF4646)
-val nonePriorityColor = Color(0xFFFFFFFF)
+val nonePriorityColor = MediumGray
 
 
 val topAppBarContentColor = Color.White
