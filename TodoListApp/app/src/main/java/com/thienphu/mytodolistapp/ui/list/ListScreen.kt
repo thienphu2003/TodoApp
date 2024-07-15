@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -37,9 +38,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.thienphu.mytodolistapp.R
+import com.thienphu.mytodolistapp.model.ToDoTask
 import com.thienphu.mytodolistapp.ui.theme.Teal200
 import com.thienphu.mytodolistapp.ui.viewmodels.SharedViewModel
 import com.thienphu.mytodolistapp.utils.Action
+import com.thienphu.mytodolistapp.utils.RequestState
 import com.thienphu.mytodolistapp.utils.SearchAppBarState
 import kotlinx.coroutines.launch
 
@@ -50,9 +53,7 @@ fun ListScreen(
     navigateToTaskScreen: (Int) -> Unit,
     sharedViewModel: SharedViewModel
 ) {
-    LaunchedEffect(key1 = true) {
-        sharedViewModel.getAllTasks()
-    }
+
 
     val action by sharedViewModel.action
     val allTasks by sharedViewModel.allTasks.collectAsState()
@@ -60,23 +61,30 @@ fun ListScreen(
     val searchAppBarState: SearchAppBarState by sharedViewModel.searchAppBarState
     val searchTextState: String by sharedViewModel.searchTextState
 
+    LaunchedEffect(key1 = true) {
+        sharedViewModel.getAllTasks()
+
+    }
     sharedViewModel.handleDatabaseActions(action)
+
+
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = action) {
 
-        if(action !== Action.NO_ACTION){
-           coroutineScope.launch {
-               val label = setActionLabel(action)
-              val snackBarResult = snackbarHostState.showSnackbar("${action.name} : ${sharedViewModel.title.value}",
-                   actionLabel = label
-               )
-               Log.d("Values","$snackBarResult")
-               if(snackBarResult == SnackbarResult.ActionPerformed && label== "UNDO"){
-                   sharedViewModel.action.value = Action.UNDO
-               }
-           }
+        if (action !== Action.NO_ACTION) {
+            coroutineScope.launch {
+                val label = setActionLabel(action)
+                val snackBarResult = snackbarHostState.showSnackbar(
+                   "${action.name} : ${sharedViewModel.title.value}",
+                    actionLabel = label,
+                    duration = SnackbarDuration.Short
+                )
+                if (snackBarResult == SnackbarResult.ActionPerformed && label == "UNDO") {
+                    sharedViewModel.action.value = Action.UNDO
+                }
+            }
         }
     }
 
@@ -92,7 +100,9 @@ fun ListScreen(
             ListContent(
                 modifier = Modifier.padding(paddingValues),
                 tasks = allTasks,
-                navigateToTaskScreen
+                navigateToTaskScreen,
+                searchTasks,
+                searchAppBarState
             )
         },
         floatingActionButton = {
@@ -107,11 +117,13 @@ fun ListScreen(
 fun ListFab(
     onFabClicked: (taskId: Int) -> Unit
 ) {
-    FloatingActionButton(onClick = {
-        onFabClicked(-1)
-    }, containerColor = Teal200, modifier = Modifier
-        .size(80.dp)
-        .clip(CircleShape)) {
+    FloatingActionButton(
+        onClick = {
+            onFabClicked(-1)
+        }, containerColor = Teal200, modifier = Modifier
+            .size(80.dp)
+            .clip(CircleShape)
+    ) {
         Icon(
             modifier = Modifier.size(40.dp),
             imageVector = Icons.Filled.Add,
@@ -122,9 +134,12 @@ fun ListFab(
 }
 
 
-private fun setActionLabel(action : Action) : String{
-    return if(action.name == "DELETE") "UNDO" else "OK"
+private fun setActionLabel(action: Action): String {
+    return if (action.name == "DELETE") "UNDO" else "OK"
 }
+
+
+
 
 
 

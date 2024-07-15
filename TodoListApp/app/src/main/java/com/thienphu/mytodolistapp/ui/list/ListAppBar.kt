@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.ContentAlpha
 
 import com.thienphu.mytodolistapp.R
+import com.thienphu.mytodolistapp.components.DisplayAlertDialog
 import com.thienphu.mytodolistapp.components.PriorityItem
 import com.thienphu.mytodolistapp.model.Priority
 import com.thienphu.mytodolistapp.ui.theme.Purple500
@@ -62,6 +63,7 @@ import com.thienphu.mytodolistapp.ui.theme.Purple500
 import com.thienphu.mytodolistapp.ui.theme.topAppBarBackgroundColor
 import com.thienphu.mytodolistapp.ui.theme.topAppBarContentColor
 import com.thienphu.mytodolistapp.ui.viewmodels.SharedViewModel
+import com.thienphu.mytodolistapp.utils.Action
 import com.thienphu.mytodolistapp.utils.SearchAppBarState
 import com.thienphu.mytodolistapp.utils.TrailingIconState
 import kotlin.math.sin
@@ -72,6 +74,7 @@ fun ListAppBar(
     searchAppBarState: SearchAppBarState,
     searchTextState: String
 ){
+
     when(searchAppBarState){
         SearchAppBarState.CLOSED -> {
             DefaultListAppBar(
@@ -79,12 +82,14 @@ fun ListAppBar(
                     sharedViewModel.searchAppBarState.value = SearchAppBarState.OPENED
                 },
                 onSortClicked = {},
-                onDeleteAllClicked = {}
+                onDeleteAllClicked = {
+                    sharedViewModel.action.value = Action.DELETE_ALL
+                }
             )
         }
         else -> {
             SearchAppBar( text = searchTextState, onSearchClicked = {
-
+                sharedViewModel.getAllSearchedTasks(it)
             }, onCloseClicked = {
                 sharedViewModel.searchAppBarState.value = SearchAppBarState.CLOSED
                 sharedViewModel.searchTextState.value = ""
@@ -108,7 +113,6 @@ fun DefaultListAppBar(
     onDeleteAllClicked: () -> Unit
 ){
 
-
        TopAppBar(
            title = {
                Text("Tasks")
@@ -131,9 +135,19 @@ fun ListAppBarActions(
     onSortClicked: (Priority) -> Unit,
     onDeleteAllClicked: () -> Unit
 ){
+    var openDialog by remember { mutableStateOf(false) }
+
+    DisplayAlertDialog(
+        title = "Remove All Tasks?","Are you sure you want to remove all tasks",
+        openDialog, onCloseDialog = { openDialog = false }, onYesClicked = {
+            onDeleteAllClicked()
+        }
+    )
     SearchAction(onSearchClicked)
     SortAction(onSortClicked)
-    DeleteAllAction(onDeleteAllClicked)
+    DeleteAllAction(onDeleteAllClicked = {
+        openDialog = true
+    })
 }
 
 @Composable
@@ -208,8 +222,9 @@ fun DeleteAllAction(onDeleteAllClicked: () -> Unit){
             offset = DpOffset(2.dp, 2.dp)
         ) {
             DropdownMenuItem(
-                onClick = {onDeleteAllClicked()
-                          expanded = false},
+                onClick = {
+                    onDeleteAllClicked()
+                    expanded = false},
                 text = {
                     Text(stringResource(R.string.delete_all_action), modifier = Modifier.padding(start = 12.dp),color = Color.Black,
                         fontStyle = FontStyle.Normal,
@@ -232,8 +247,8 @@ fun SearchAppBar(
 ) {
 
     var trailingIconState : TrailingIconState by remember { mutableStateOf(TrailingIconState.READY_TO_DELETE) }
-      Column(modifier = Modifier.fillMaxWidth().height(88.dp).background(Purple500)) {
-          Spacer(modifier = Modifier.height(25.dp))
+      Column(modifier = Modifier.fillMaxWidth().height(110.dp).background(Purple500)) {
+          Spacer(modifier = Modifier.height(50.dp))
           TextField(
               modifier = Modifier.fillMaxWidth(),
               value = text,

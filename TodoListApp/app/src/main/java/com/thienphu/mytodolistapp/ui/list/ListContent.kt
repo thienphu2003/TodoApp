@@ -28,23 +28,43 @@ import androidx.compose.ui.unit.sp
 import com.thienphu.mytodolistapp.model.Priority
 import com.thienphu.mytodolistapp.model.ToDoTask
 import com.thienphu.mytodolistapp.utils.RequestState
+import com.thienphu.mytodolistapp.utils.SearchAppBarState
 
 
 @Composable
 fun ListContent(
     modifier: Modifier,
     tasks: RequestState<List<ToDoTask>>,
-    navigateToTaskScreen: (taskId: Int) -> Unit
+    navigateToTaskScreen: (taskId: Int) -> Unit,
+    searchedTasks : RequestState<List<ToDoTask>>,
+    searchAppBarState: SearchAppBarState
 ) {
 
-  if(tasks is RequestState.Success){
-      if(tasks.data.isEmpty()){
-          EmptyContent()
-      }else{
-          DisplayTasks(modifier = modifier, tasks = tasks.data, navigateToTaskScreen = navigateToTaskScreen)
-      }
-  }
+    if(searchAppBarState == SearchAppBarState.TRIGGERED){
+        if(searchedTasks is RequestState.Success){
+           HandleListContent(searchedTasks.data, navigateToTaskScreen,modifier)
+        }
+    }else {
+        if(tasks is RequestState.Success){
+            HandleListContent(tasks.data, navigateToTaskScreen,modifier)
+        }
+    }
 
+
+
+}
+
+@Composable
+fun HandleListContent(
+    tasks : List<ToDoTask>,
+    navigateToTaskScreen: (taskId: Int) -> Unit,
+    modifier: Modifier
+){
+    if(tasks.isEmpty()){
+        EmptyContent()
+    }else{
+        DisplayTasks(modifier = modifier, tasks = tasks, navigateToTaskScreen = navigateToTaskScreen)
+    }
 }
 
 @Composable

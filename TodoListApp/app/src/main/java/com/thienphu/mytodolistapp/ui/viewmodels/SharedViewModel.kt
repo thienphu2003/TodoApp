@@ -27,6 +27,8 @@ class SharedViewModel ( val repository: TodoRepository) : ViewModel(){
 
     val action : MutableState<Action> = mutableStateOf(Action.NO_ACTION)
 
+
+
     val id : MutableState<Int> = mutableStateOf(0)
     val title : MutableState<String> = mutableStateOf("")
     val description : MutableState<String> = mutableStateOf("")
@@ -53,11 +55,11 @@ class SharedViewModel ( val repository: TodoRepository) : ViewModel(){
        }
     }
 
-    fun getAllSearchedTasks(){
+    fun getAllSearchedTasks(searchContent :String){
         _searchedTasks.value = RequestState.Loading
         try {
             viewModelScope.launch {
-                repository.searchDatabase(searchContent = searchTextState.value).collect{
+                repository.searchDatabase(searchContent = "%$searchContent%").collect{
                     _searchedTasks.value = RequestState.Success(it)
                 }
             }
@@ -88,9 +90,10 @@ class SharedViewModel ( val repository: TodoRepository) : ViewModel(){
                 priority = priority.value
 
             )
-            Log.d("TodoTask", "$todoTask")
+
             repository.addTask(todoTask)
         }
+        searchAppBarState.value = SearchAppBarState.CLOSED
     }
 
     private fun updateTask(){
@@ -119,6 +122,14 @@ class SharedViewModel ( val repository: TodoRepository) : ViewModel(){
         }
     }
 
+    private  fun deleteAllTasks(){
+
+
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteAllTask()
+        }
+    }
+
     fun handleDatabaseActions(action:Action) : Unit {
         when(action){
             Action.ADD -> {
@@ -131,14 +142,18 @@ class SharedViewModel ( val repository: TodoRepository) : ViewModel(){
                 deleteTask()
             }
             Action.DELETE_ALL -> {
+                deleteAllTasks()
             }
             Action.UNDO -> {
-                Log.d("Action Undo ", "Triggered")
                 addTask()
             }
-            else -> {}
+            else -> {
+                Log.d("Action","Nothing")
+            }
+
         }
         this.action.value = Action.NO_ACTION
+
     }
 
 
