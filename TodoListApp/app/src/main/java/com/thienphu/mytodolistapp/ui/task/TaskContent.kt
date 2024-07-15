@@ -55,7 +55,6 @@ fun TaskContent(
                 Text(text = "Description")
             },
             textStyle = MaterialTheme.typography.bodyLarge,
-
         )
     }
 }

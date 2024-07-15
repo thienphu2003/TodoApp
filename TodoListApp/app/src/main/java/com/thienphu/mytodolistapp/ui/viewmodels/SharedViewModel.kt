@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 class SharedViewModel ( private val repository: TodoRepository , private val dataStoreRepository: DataStoreRepository) : ViewModel(){
 
     val action : MutableState<Action> = mutableStateOf(Action.NO_ACTION)
-    val delete_message: MutableState<String> = mutableStateOf("")
+    val message: MutableState<String> = mutableStateOf("")
 
 
 
@@ -95,7 +95,6 @@ class SharedViewModel ( private val repository: TodoRepository , private val dat
                 priority = priority.value
 
             )
-
             repository.addTask(todoTask)
         }
         searchAppBarState.value = SearchAppBarState.CLOSED
@@ -139,16 +138,19 @@ class SharedViewModel ( private val repository: TodoRepository , private val dat
         when(action){
             Action.ADD -> {
                 addTask()
+                message.value = "Add"
             }
             Action.UPDATE -> {
                 updateTask()
+                message.value ="Update"
             }
             Action.DELETE -> {
                 deleteTask()
+                message.value = "Delete"
             }
             Action.DELETE_ALL -> {
                 deleteAllTasks()
-                delete_message.value = "All Tasks Removed"
+                message.value = "All Tasks Removed"
             }
             Action.UNDO -> {
                 addTask()

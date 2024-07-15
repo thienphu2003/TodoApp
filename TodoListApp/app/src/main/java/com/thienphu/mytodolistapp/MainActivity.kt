@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.thienphu.mytodolistapp.navigation.SetUpNavigation
 import com.thienphu.mytodolistapp.repositories.TodoRepository
 import com.thienphu.mytodolistapp.ui.theme.TodoListAppTheme
@@ -44,6 +46,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var navController : NavHostController
     private val sharedViewModel: SharedViewModel by viewModels{AppViewModels.Factory}
 
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

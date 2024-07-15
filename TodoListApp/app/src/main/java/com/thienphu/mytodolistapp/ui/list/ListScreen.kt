@@ -53,64 +53,56 @@ fun ListScreen(
     navigateToTaskScreen: (Int) -> Unit,
     sharedViewModel: SharedViewModel
 ) {
-
-
-
     val action by sharedViewModel.action
     val allTasks by sharedViewModel.allTasks.collectAsState()
     val searchTasks by sharedViewModel.searchedTasks.collectAsState()
     val sortState by sharedViewModel.sortState.collectAsState()
     val searchAppBarState: SearchAppBarState by sharedViewModel.searchAppBarState
     val searchTextState: String by sharedViewModel.searchTextState
-    val message by sharedViewModel.delete_message
+    val message by sharedViewModel.message
     val lowPriorityTasks by sharedViewModel.lowPriorityTask.collectAsState()
     val highPriorityTasks by sharedViewModel.highPriorityTask.collectAsState()
-
-
 
     LaunchedEffect(key1 = true) {
         sharedViewModel.getAllTasks()
         sharedViewModel.readSortState()
-
     }
-     sharedViewModel.handleDatabaseActions(action)
-
-
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    // Handle database actions
     LaunchedEffect(key1 = action) {
-        if (action !== Action.NO_ACTION) {
+        if (action != Action.NO_ACTION) {
             coroutineScope.launch {
-                val label = setActionLabel(action)
+                sharedViewModel.handleDatabaseActions(action)
+            }
+        }
+    }
+
+    // Show snackbar for actions
+    LaunchedEffect(key1 = message) {
+        if (message.isNotEmpty()) {
+            coroutineScope.launch {
+                val label = setActionLabel(message)
                 val snackBarResult = snackbarHostState.showSnackbar(
-                   "${action.name} : ${sharedViewModel.title.value}",
+                    "$message : ${sharedViewModel.title.value}",
                     actionLabel = label,
                     duration = SnackbarDuration.Short
                 )
                 if (snackBarResult == SnackbarResult.ActionPerformed && label == "UNDO") {
                     sharedViewModel.action.value = Action.UNDO
+                } else {
+                    sharedViewModel.action.value = Action.NO_ACTION
                 }
             }
         }
     }
 
-    LaunchedEffect(key1 = message) {
-       if(message !== ""){
-           val snackBarResult = snackbarHostState.showSnackbar(
-               message,
-               actionLabel = "OK",
-               duration = SnackbarDuration.Short
-           )
-       }
-    }
-
-
 
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
-
         },
         topBar = {
             ListAppBar(sharedViewModel, searchAppBarState, searchTextState)
@@ -125,10 +117,9 @@ fun ListScreen(
                 lowPriorityTasks,
                 highPriorityTasks,
                 sortState,
-                onSwipeToDelete = {
-                    action, task ->
-                    sharedViewModel.action.value = action
+                onSwipeToDelete = { action, task ->
                     sharedViewModel.updateTaskFields(task)
+                    sharedViewModel.action.value = action
                 }
             )
         },
@@ -136,9 +127,7 @@ fun ListScreen(
             ListFab(onFabClicked = navigateToTaskScreen)
         }
     )
-
 }
-
 
 @Composable
 fun ListFab(
@@ -160,11 +149,9 @@ fun ListFab(
     }
 }
 
-
-private fun setActionLabel(action: Action): String {
-    return if (action.name == "DELETE") "UNDO" else "OK"
+private fun setActionLabel(message: String): String {
+    return if (message =="Delete") "UNDO" else "OK"
 }
-
 
 
 

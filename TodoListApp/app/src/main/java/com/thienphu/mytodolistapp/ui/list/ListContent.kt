@@ -1,7 +1,12 @@
 package com.thienphu.mytodolistapp.ui.list
 
+import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -27,11 +33,17 @@ import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
@@ -46,6 +58,8 @@ import com.thienphu.mytodolistapp.ui.theme.highPriorityColor
 import com.thienphu.mytodolistapp.utils.Action
 import com.thienphu.mytodolistapp.utils.RequestState
 import com.thienphu.mytodolistapp.utils.SearchAppBarState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -112,6 +126,7 @@ fun HandleListContent(
     }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DisplayTasks(
@@ -126,20 +141,33 @@ fun DisplayTasks(
             val isDismissed = dismissState.isDismissed(DismissDirection.EndToStart)
 
             if(isDismissed && dismissDirection == DismissDirection.EndToStart){
+                val scope = rememberCoroutineScope()
+                scope.launch {
+                    delay(300)
+                    onSwipeToDelete(Action.DELETE,tasks[item])
+                }
 
             }
-            val degree by animateFloatAsState(
-                targetValue = if (dismissState.targetValue == DismissValue.Default) 0f else -45f,
-                label = "Dismiss"
-            )
-            SwipeToDismiss(
-                state = dismissState,
-                directions = setOf(DismissDirection.EndToStart),
-                background = { RedBackGround(degrees = degree) },
-                dismissContent = {
-                    TaskItem(toDoTask = tasks[item], navigateToTaskScreen = navigateToTaskScreen)
-                }
-            )
+            var setAppear by remember { mutableStateOf(false) }
+            LaunchedEffect(key1 =true) {
+                setAppear = true
+            }
+            AnimatedVisibility(
+                visible = setAppear && !isDismissed,
+                enter = expandVertically(animationSpec = tween(300)),
+                exit = shrinkVertically(animationSpec = tween(300))
+            ) {
+                SwipeToDismiss(
+                    state = dismissState,
+                    directions = setOf(DismissDirection.EndToStart),
+                    background =  {
+                        RedBackground()
+                    },
+                    dismissContent = {
+                        TaskItem(toDoTask = tasks[item], navigateToTaskScreen = navigateToTaskScreen)
+                    }
+                )
+            }
         })
     }
 }
@@ -200,20 +228,24 @@ fun TaskItem(
 
     }
 }
-
 @Composable
-fun RedBackGround(degrees: Float) {
+fun RedBackground() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(highPriorityColor)
-            .padding(horizontal = 20.dp)
+            .background(
+                Brush.horizontalGradient(
+                    colors = listOf(Color.Red, Color.Black)
+                )
+            )
+            .padding(horizontal = 20.dp),
+        contentAlignment = Alignment.CenterEnd
     ) {
         Icon(
-            modifier = Modifier.rotate(degrees),
-            imageVector = Icons.Filled.Delete,
-            contentDescription = "Delete Icon",
-            tint = Color.White
+            imageVector = Icons.Default.Delete,
+            contentDescription = "Delete",
+            tint = Color.White,
+            modifier = Modifier.size(32.dp)
         )
     }
 }
