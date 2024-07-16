@@ -50,10 +50,10 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
+    action : Action,
     navigateToTaskScreen: (Int) -> Unit,
     sharedViewModel: SharedViewModel
 ) {
-    val action by sharedViewModel.action
     val allTasks by sharedViewModel.allTasks.collectAsState()
     val searchTasks by sharedViewModel.searchedTasks.collectAsState()
     val sortState by sharedViewModel.sortState.collectAsState()
@@ -68,34 +68,29 @@ fun ListScreen(
         sharedViewModel.readSortState()
     }
 
+    LaunchedEffect(key1 = action) {
+        sharedViewModel.handleDatabaseActions(action)
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // Handle database actions
-    LaunchedEffect(key1 = action) {
-        if (action != Action.NO_ACTION) {
-            coroutineScope.launch {
-                sharedViewModel.handleDatabaseActions(action)
-            }
-        }
-    }
 
-    // Show snackbar for actions
-    LaunchedEffect(key1 = message) {
-        if (message.isNotEmpty()) {
+
+    LaunchedEffect(key1 = action) {
+        if ( action != Action.NO_ACTION) {
             coroutineScope.launch {
-                val label = setActionLabel(message)
+                val label = setActionLabel(action)
                 val snackBarResult = snackbarHostState.showSnackbar(
-                    "$message : ${sharedViewModel.title.value}",
+                    "${action.name} : ${sharedViewModel.title.value}",
                     actionLabel = label,
                     duration = SnackbarDuration.Short
                 )
                 if (snackBarResult == SnackbarResult.ActionPerformed && label == "UNDO") {
                     sharedViewModel.action.value = Action.UNDO
-                } else {
-                    sharedViewModel.action.value = Action.NO_ACTION
                 }
             }
+            sharedViewModel.action.value = Action.NO_ACTION
         }
     }
 
@@ -120,6 +115,7 @@ fun ListScreen(
                 onSwipeToDelete = { action, task ->
                     sharedViewModel.updateTaskFields(task)
                     sharedViewModel.action.value = action
+                    snackbarHostState.currentSnackbarData?.dismiss()
                 }
             )
         },
@@ -149,8 +145,8 @@ fun ListFab(
     }
 }
 
-private fun setActionLabel(message: String): String {
-    return if (message =="Delete") "UNDO" else "OK"
+private fun setActionLabel(action: Action): String {
+    return if (action.name =="DELETE") "UNDO" else "OK"
 }
 
 

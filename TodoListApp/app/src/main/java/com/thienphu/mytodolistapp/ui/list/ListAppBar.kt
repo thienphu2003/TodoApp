@@ -65,7 +65,6 @@ import com.thienphu.mytodolistapp.ui.theme.topAppBarContentColor
 import com.thienphu.mytodolistapp.ui.viewmodels.SharedViewModel
 import com.thienphu.mytodolistapp.utils.Action
 import com.thienphu.mytodolistapp.utils.SearchAppBarState
-import com.thienphu.mytodolistapp.utils.TrailingIconState
 import kotlin.math.sin
 
 @Composable
@@ -248,9 +247,8 @@ fun SearchAppBar(
     onSearchClicked: (String) -> Unit
 ) {
 
-    var trailingIconState : TrailingIconState by remember { mutableStateOf(TrailingIconState.READY_TO_DELETE) }
-      Column(modifier = Modifier.fillMaxWidth().height(110.dp).background(Purple500)) {
-          Spacer(modifier = Modifier.height(50.dp))
+      Column(modifier = Modifier.fillMaxWidth().height(100.dp).background(Purple500)) {
+          Spacer(modifier = Modifier.height(40.dp))
           TextField(
               modifier = Modifier.fillMaxWidth(),
               value = text,
@@ -283,20 +281,10 @@ fun SearchAppBar(
               ),
               trailingIcon = {
                   IconButton(onClick = {
-                      when(trailingIconState){
-                          TrailingIconState.READY_TO_DELETE ->{
-                              onTextChange("")
-                              trailingIconState = TrailingIconState.READY_TO_CLOSE
-                          }
-                          TrailingIconState.READY_TO_CLOSE->{
-                              if(text.isNotEmpty()){
-                                  onTextChange("")
-                              }else{
-                                  onCloseClicked()
-                                  trailingIconState = TrailingIconState.READY_TO_DELETE
-                              }
-
-                          }
+                      if(text.isNotEmpty()){
+                          onTextChange("")
+                      }else {
+                          onCloseClicked()
                       }
                   }) {
                       Icon(

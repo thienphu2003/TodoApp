@@ -135,6 +135,7 @@ class SharedViewModel ( private val repository: TodoRepository , private val dat
     }
 
     fun handleDatabaseActions(action:Action)  {
+        Log.d("Handle database actions", "Trigger")
         when(action){
             Action.ADD -> {
                 addTask()
@@ -154,13 +155,14 @@ class SharedViewModel ( private val repository: TodoRepository , private val dat
             }
             Action.UNDO -> {
                 addTask()
+                message.value = "Undo"
             }
             else -> {
-
+                message.value = ""
             }
 
         }
-        this.action.value = Action.NO_ACTION
+
 
     }
 
