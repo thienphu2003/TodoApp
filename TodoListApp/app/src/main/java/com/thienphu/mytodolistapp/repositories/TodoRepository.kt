@@ -25,5 +25,4 @@ class TodoRepository(private val todoDao: ToDoDao) {
 
     fun searchDatabase(searchContent : String) : Flow<List<ToDoTask>> = todoDao.search(searchContent)
 
-
 }

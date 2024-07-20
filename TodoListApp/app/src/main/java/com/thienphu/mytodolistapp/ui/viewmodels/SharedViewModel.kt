@@ -27,7 +27,8 @@ import kotlinx.coroutines.launch
 
 
 
-class SharedViewModel ( private val repository: TodoRepository , private val dataStoreRepository: DataStoreRepository) : ViewModel(){
+class SharedViewModel ( private val repository: TodoRepository , private val dataStoreRepository: DataStoreRepository) :
+    ViewModel(){
 
     val action : MutableState<Action> = mutableStateOf(Action.NO_ACTION)
     val message: MutableState<String> = mutableStateOf("")

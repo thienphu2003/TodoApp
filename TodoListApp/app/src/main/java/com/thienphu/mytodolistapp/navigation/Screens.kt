@@ -21,8 +21,5 @@ class Screens (navController : NavHostController) {
             popUpTo(LIST_SCREEN){inclusive = true}
         }
     }
-
-
-
-
+    
 }

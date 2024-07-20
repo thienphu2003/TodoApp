@@ -139,7 +139,7 @@ fun ListFab(
         Icon(
             modifier = Modifier.size(40.dp),
             imageVector = Icons.Filled.Add,
-            contentDescription = stringResource(id = R.string.add_button),
+            contentDescription = "Add Button",
             tint = Color.White
         )
     }

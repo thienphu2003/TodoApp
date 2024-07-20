@@ -6,6 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.sharp.Clear
+import androidx.compose.material.icons.twotone.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,8 +29,9 @@ import com.thienphu.mytodolistapp.ui.theme.MediumGray
 
 @Composable
 fun EmptyContent() {
-    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(painter = painterResource(id = R.drawable.ic_sad_emoji), contentDescription = "Sad Face Icon",Modifier.size(120.dp), tint = MediumGray)
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(imageVector = Icons.Filled.Close, contentDescription = "Sad Face Icon",Modifier.size(120.dp), tint = MediumGray)
         Text("No Tasks Found", color = MediumGray, fontWeight = FontWeight.Bold, fontSize = 26.sp)
     }
 }

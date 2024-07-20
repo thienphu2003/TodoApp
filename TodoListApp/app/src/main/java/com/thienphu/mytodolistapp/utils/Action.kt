@@ -8,8 +8,6 @@ enum class Action {
     UNDO,
     NO_ACTION
 }
-
-
 fun stringToAction(string:String?) : Action {
     return when {
         string == "ADD" -> {

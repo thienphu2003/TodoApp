@@ -15,7 +15,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -156,19 +159,19 @@ fun SearchAction(
     onSearchClicked: () -> Unit
 ){
     IconButton(onClick = {onSearchClicked()}) {
-        Icon(imageVector = Icons.Filled.Search, contentDescription = stringResource(R.string.search_action), tint = topAppBarContentColor)
+        Icon(imageVector = Icons.Filled.Search, contentDescription = "Search Tasks", tint = topAppBarContentColor)
     }
 }
 
 @Composable
 fun SortAction(onSortClicked: (Priority) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-
     IconButton(onClick = { expanded = true }) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_filter_list),
-            contentDescription = stringResource(R.string.sort_action),
-            tint = topAppBarContentColor
+            imageVector = Icons.Filled.ArrowDropDown,
+            contentDescription = "Sort Tasks",
+            tint = topAppBarContentColor,
+            modifier = Modifier.size(60.dp)
         )
         DropdownMenu(
             expanded = expanded,
@@ -213,8 +216,8 @@ fun DeleteAllAction(onDeleteAllClicked: () -> Unit){
 
     IconButton(onClick = { expanded = true }) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_vertial_menu),
-            contentDescription = stringResource(R.string.delete_all_action),
+            imageVector = Icons.Filled.MoreVert,
+            contentDescription = "Delete all tasks",
             tint = topAppBarContentColor
         )
         DropdownMenu(
@@ -227,7 +230,7 @@ fun DeleteAllAction(onDeleteAllClicked: () -> Unit){
                     onDeleteAllClicked()
                     expanded = false},
                 text = {
-                    Text(stringResource(R.string.delete_all_action), modifier = Modifier.padding(start = 12.dp),color = Color.Black,
+                    Text("Delete All Tasks", modifier = Modifier.padding(start = 12.dp),color = Color.Black,
                         fontStyle = FontStyle.Normal,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = FontFamily.SansSerif,
